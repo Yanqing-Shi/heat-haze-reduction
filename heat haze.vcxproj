@@ -137,12 +137,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="FileName.cpp" />
+    <ClCompile Include="method.cpp" />
     <ClCompile Include="WindowZoom.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PolyFit.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="method.h" />
     <ClInclude Include="OpenCVWindowExt.h" />
     <ClInclude Include="Polyfit.h" />
   </ItemGroup>

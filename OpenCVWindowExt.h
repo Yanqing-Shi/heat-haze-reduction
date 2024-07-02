@@ -1,4 +1,6 @@
 #include <opencv2/opencv.hpp>
+#include<iostream>
+#include<stack>
 using namespace std;
 using namespace cv;
 #pragma once
@@ -19,7 +21,7 @@ class COpenCVWindowExt
 public:
 	COpenCVWindowExt (String strWindowName, int iFlag = 1);
 	~COpenCVWindowExt ();
-
+	stack<Mat> history;
 	bool ImRead (String strFileName);
 	void SetInitailScale (double dScale);
 	MouseParams* Mouse;
@@ -61,9 +63,9 @@ public:
 	int m_iVertScrollBarRange_Min;
 	int m_iVertScrollBarRange_Max;
 
-	
-	//MouseParams ret();
 
 	
 };
+
+
 

@@ -24,7 +24,7 @@
     <ClCompile Include="PolyFit.cpp">
       <Filter>资源文件</Filter>
     </ClCompile>
-    <ClCompile Include="FileName.cpp">
+    <ClCompile Include="method.cpp">
       <Filter>资源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -33,6 +33,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="OpenCVWindowExt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="method.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
