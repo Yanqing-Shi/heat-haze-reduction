@@ -598,7 +598,6 @@ output Poly(vector<Point> pixels, size_t n,int width,int height) {
         //cout << x[i] << " ";
     }
     cout <<"sdx="<< sdx << endl;
-    imwrite("aa.jpg", resultx);
 
 
     PolyFit(y, x, n, k, fixedinter, fixedinterval, coefbetay, Weights, XTWXInv);
@@ -638,7 +637,6 @@ output Poly(vector<Point> pixels, size_t n,int width,int height) {
         }
     }
     
-    imwrite("bb.jpg", resulty);
     out.ord = k;
     
 
