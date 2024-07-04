@@ -174,6 +174,7 @@ MouseParams* prep(void* param) {
 
 	Mat canny_result;
 	bitwise_and(mask, img_canny, canny_result);
+
 	//imshow("img_canny", canny_result);
 	imwrite("canny.jpg", img_canny);
 	imwrite("canny_result.jpg", canny_result);
@@ -191,7 +192,7 @@ MouseParams* prep(void* param) {
 
 		for (int j = 0; j < width; ++j) {
 			// Check if the pixel is white
-			if (row[j] == 255) {
+			if (row[j] == 255){
 
 				// Store the coordinates
 				length++;
@@ -200,6 +201,7 @@ MouseParams* prep(void* param) {
 			}
 		}
 	}
+
 	//cout << endl;
 	/*for (auto elem : whitePixels) {
 		cout << elem << endl;
@@ -209,7 +211,6 @@ MouseParams* prep(void* param) {
 	//imshow("a", result_lap);
 	//if (xcoor.empty()) cout << "empty";
 	//cout<<xcoor.size();
-
 
 
 	int l = 1;
@@ -247,14 +248,20 @@ MouseParams* prep(void* param) {
 
 
 	Mat result_canny, result_lap;
-	vector<int> xcoor = output.xout;
+	vector<int> xcor = output.xout;
+	vector<int> ycor = output.yout;
 	result_canny = output.result;
 	imwrite("poly_result.jpg", result_canny);
 	bitwise_or(canny_result, result_canny, result_lap);
 
 	vector<int> ycoor;
 
-	for (auto elem : xcoor) {
+
+	if (output.ind == 1) {
+		
+	}
+
+	for (auto elem : xcor) {
 		//cout << elem << endl;
 		double fx = 0;
 		double fxp = 0;
@@ -264,6 +271,7 @@ MouseParams* prep(void* param) {
 			fx += int(pow(elem, i) * output.coef[i]);
 			fxp += (i + 1) * pow(elem, i) * output.coef[i + 1];
 		}
+		cout << elem << endl;
 		ycoor.push_back(fx);
 		//if (canny_result.at<uchar>(Point(elem, fx)) == result_canny.at<uchar>(Point(elem, fx))) continue;
 
@@ -276,9 +284,9 @@ MouseParams* prep(void* param) {
 
 	}
 	int order = 0;
-	for (auto elem : xcoor) {
+	for (auto elem : xcor) {
 		for (int i = -2; i <= 2; i++) {
-			cout << elem << " " << ycoor[order] << endl;
+			//cout << elem << " " << ycoor[order] << endl;
 			img.at<Vec3b>(ycoor[order], elem) = average(elem, ycoor[order] + i, img, 1);
 		}
 		order++;
@@ -286,7 +294,7 @@ MouseParams* prep(void* param) {
 
 	order = 0;
 
-	for (auto elem : xcoor) {
+	for (auto elem : xcor) {
 		img.at<Vec3b>(ycoor[order], elem) = average(elem, ycoor[order], img, 2);
 	}
 

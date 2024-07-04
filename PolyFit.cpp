@@ -556,7 +556,8 @@ output Poly(vector<Point> pixels, size_t n,int width,int height) {
     // Definition of other variables
     // **************************************************************
     
-    double* coefbeta=new double[k + 1];                            // Coefficients of the polynomial
+    double* coefbetax=new double[k + 1];                            // Coefficients of the polynomial
+    double* coefbetay=new double[k + 1];
     double* serbeta=new double[k + 1];                             // Standard error on coefficients
     double tstudentval = 0.;                         // Student t value
     double SE = 0.;                                  // Standard error
@@ -578,36 +579,73 @@ output Poly(vector<Point> pixels, size_t n,int width,int height) {
 
     // Calculate the coefficients of the fit
     // **************************************************************
-    PolyFit(x, y, n, k, fixedinter, fixedinterval, coefbeta, Weights, XTWXInv);
+    PolyFit(x, y, n, k, fixedinter, fixedinterval, coefbetax, Weights, XTWXInv);
     //DisplayCoefs(k, nstar, tstudentval, coefbeta, serbeta);
-    for (size_t i = 0; i < (k + 1); i++) {
-        out.coef[i] = coefbeta[i];
-
-    }
     int j = 0;
-    Mat result= Mat::zeros(Size(width, height), CV_8UC1);
+    double sdx = 0;
+    Mat resultx= Mat::zeros(Size(width, height), CV_8UC1);
     for (int i = 0; i < n; i++) {
         
         if (book[int(x[i])]==0) {
             //cout << x[i] << endl;
             book[int(x[i])] = 1;
-            result.at<uchar>(coefbeta[0] + x[i] * coefbeta[1] + pow(x[i], 2) * coefbeta[2], x[i]) = 255;
+            resultx.at<uchar>(coefbetax[0] + x[i] * coefbetax[1] + pow(x[i], 2) * coefbetax[2], x[i]) = 255;
+            sdx += pow(coefbetax[0] + x[i] * coefbetax[1] + pow(x[i], 2) * coefbetax[2]-y[i], 2);
             out.xout.push_back(int(x[i]));
             j++;
         }
      
         //cout << x[i] << " ";
     }
-   /* for (auto elem : out.xout) {
-        cout << elem << endl;
-    }*/
-    //imshow("aa.jpg", result);
-    imwrite("aa.jpg", result);
-    out.ord = k;
-    out.result = result;
+    cout <<"sdx="<< sdx << endl;
+    imwrite("aa.jpg", resultx);
 
-    delete[]coefbeta;
-    coefbeta = NULL;
+
+    PolyFit(y, x, n, k, fixedinter, fixedinterval, coefbetay, Weights, XTWXInv);
+
+    
+    int book2[8000] = { 0 };
+
+    Mat resulty = Mat::zeros(Size(width, height), CV_8UC1);
+    double sdy = 0;
+    for (int i = 0; i < n; i++) {
+
+        if (book2[int(y[i])] == 0) {
+            //cout << x[i] << endl;
+            book2[int(y[i])] = 1;
+            resulty.at<uchar>(y[i], coefbetay[0] + y[i] * coefbetay[1] + pow(y[i], 2) * coefbetay[2]) = 255;
+            sdy += pow(coefbetay[0] + y[i] * coefbetay[1] + pow(y[i], 2) * coefbetay[2] - x[i],2);
+            out.yout.push_back(int(y[i]));
+            j++;
+        }
+        
+
+    }
+    //cout << "sdy=" << sdy << endl;
+
+    if (sdx < sdy) {
+        out.ind = 0;  //x is the independent var
+        out.result = resultx;
+        for (size_t i = 0; i < (k + 1); i++) {
+            out.coef[i] = coefbetax[i];
+        }
+    }
+    else {
+        out.ind = 1;  //y is the independent var
+        out.result = resulty;
+        for (size_t i = 0; i < (k + 1); i++) {
+            out.coef[i] = coefbetay[i];
+        }
+    }
+    
+    imwrite("bb.jpg", resulty);
+    out.ord = k;
+    
+
+    delete[]coefbetax;
+    coefbetax = NULL;
+    delete[]coefbetay;
+    coefbetay = NULL;
     delete[]serbeta;
     serbeta = NULL;
 

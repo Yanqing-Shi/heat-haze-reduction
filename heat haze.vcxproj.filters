@@ -32,7 +32,7 @@
     <ClInclude Include="Polyfit.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="OpenCVWindowExt.h">
+    <ClInclude Include="WindowZoom.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="method.h">

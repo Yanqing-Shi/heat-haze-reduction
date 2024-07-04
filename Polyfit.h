@@ -11,6 +11,8 @@ struct output {
 	int ord;
 	double coef[5] = { 0 };
 	std::vector<int> xout;
+	std::vector<int> yout;
+	int ind;
 };
 
 double incbeta(double a, double b, double x);

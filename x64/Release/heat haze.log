@@ -1,55 +1,9 @@
-﻿  WindowZoom.cpp
-C:\Users\todds\Desktop\haze\heat haze\heat haze\OpenCVWindowExt.h(9,16): warning C4091: “typedef ”: 没有声明变量时忽略“MouseParams”的左侧
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(82,98): warning C4244: “参数”: 从“double”转换到“_Tp”，可能丢失数据
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(82,98): warning C4244:         with
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(82,98): warning C4244:         [
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(82,98): warning C4244:             _Tp=int
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(82,98): warning C4244:         ]
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(82,57): warning C4244: “参数”: 从“double”转换到“_Tp”，可能丢失数据
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(82,57): warning C4244:         with
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(82,57): warning C4244:         [
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(82,57): warning C4244:             _Tp=int
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(82,57): warning C4244:         ]
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(99,64): warning C4244: “参数”: 从“double”转换到“_Tp”，可能丢失数据
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(99,64): warning C4244:         with
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(99,64): warning C4244:         [
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(99,64): warning C4244:             _Tp=int
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(99,64): warning C4244:         ]
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(98,79): warning C4244: “参数”: 从“double”转换到“_Tp”，可能丢失数据
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(98,79): warning C4244:         with
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(98,79): warning C4244:         [
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(98,79): warning C4244:             _Tp=int
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(98,79): warning C4244:         ]
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(99,112): warning C4244: “参数”: 从“double”转换到“_Tp”，可能丢失数据
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(99,112): warning C4244:         with
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(99,112): warning C4244:         [
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(99,112): warning C4244:             _Tp=int
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(99,112): warning C4244:         ]
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(99,83): warning C4244: “参数”: 从“double”转换到“_Tp”，可能丢失数据
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(99,83): warning C4244:         with
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(99,83): warning C4244:         [
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(99,83): warning C4244:             _Tp=int
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(99,83): warning C4244:         ]
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,110): warning C4244: “参数”: 从“double”转换到“_Tp”，可能丢失数据
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,110): warning C4244:         with
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,110): warning C4244:         [
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,110): warning C4244:             _Tp=int
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,110): warning C4244:         ]
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,60): warning C4244: “参数”: 从“double”转换到“_Tp”，可能丢失数据
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,60): warning C4244:         with
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,60): warning C4244:         [
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,60): warning C4244:             _Tp=int
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,60): warning C4244:         ]
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,145): warning C4244: “参数”: 从“double”转换到“_Tp”，可能丢失数据
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,145): warning C4244:         with
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,145): warning C4244:         [
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,145): warning C4244:             _Tp=int
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,145): warning C4244:         ]
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,127): warning C4244: “参数”: 从“double”转换到“_Tp”，可能丢失数据
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,127): warning C4244:         with
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,127): warning C4244:         [
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,127): warning C4244:             _Tp=int
-C:\Users\todds\Desktop\haze\heat haze\heat haze\WindowZoom.cpp(225,127): warning C4244:         ]
+﻿  PolyFit.cpp
+C:\Users\todds\Desktop\haze\heat haze\heat haze\PolyFit.cpp(592,100): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
+C:\Users\todds\Desktop\haze\heat haze\heat haze\PolyFit.cpp(592,66): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
+C:\Users\todds\Desktop\haze\heat haze\heat haze\PolyFit.cpp(616,72): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
+C:\Users\todds\Desktop\haze\heat haze\heat haze\PolyFit.cpp(616,34): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
+C:\Users\todds\Desktop\haze\heat haze\heat haze\PolyFit.cpp(642,15): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
   正在生成代码
   2 of 431 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation

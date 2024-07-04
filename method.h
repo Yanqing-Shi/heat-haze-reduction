@@ -2,7 +2,7 @@
 #include<iostream>
 
 #include <opencv2/opencv.hpp>
-#include "OpenCVWindowExt.h"
+#include "WindowZoom.h"
 using namespace std;
 using namespace cv;
 

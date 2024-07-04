@@ -1,5 +1,5 @@
 #include<algorithm>
-#include "OpenCVWindowExt.h"
+#include "WindowZoom.h"
 #include "Polyfit.h"
 #include"method.h"
 using namespace std;
@@ -225,7 +225,7 @@ void COpenCVWindowExt::RefreshImage ()
 	Rect org(Point(m_iHorzScrollBarPos / (m_dNewScale * 1280) * 6016, m_iVertScrollBarPos / (m_dNewScale * 854) * 4016),Size(6016/ m_dNewScale,4016/ m_dNewScale));
 	Mouse->currentimg = m_matSrc(org);//m_vecMatResize[m_iScaleTimes](rectShow);
 	
-	imwrite("aa.jpg", Mouse->currentimg);
+
 	
 }
 
