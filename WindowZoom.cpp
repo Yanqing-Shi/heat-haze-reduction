@@ -80,6 +80,10 @@ void MouseCall (int event, int x, int y, int flag, void* param)
 		if (flag == EVENT_FLAG_LBUTTON) {
 			//cout << x << " " << y << endl;
 			circle(mask, Point(x / (pParent->m_dNewScale * 1280) * 6016, y / (pParent->m_dNewScale * 854) * 4016),5, 255, FILLED);
+			if (x < mouse->startloc.x) mouse->startloc.x = x;
+			if (y < mouse->startloc.y) mouse->startloc.y = y;
+			if (x > mouse->endloc.x) mouse->endloc.x = x;
+			if (y > mouse->endloc.y) mouse->endloc.y = y;
 		}
 
 	}else if (event == EVENT_LBUTTONDOWN && drawing == false) {
@@ -88,11 +92,15 @@ void MouseCall (int event, int x, int y, int flag, void* param)
 		mouse->width = mouse->currentimg.cols;
 		Mat mask = Mat::zeros(Size(mouse->width, mouse->height), CV_8UC1);
 		mouse->mask = mask; 
+
+		mouse->startloc = Point(x, y);
+		mouse->endloc = Point(x, y);
 		//cout << x << " " << y << endl;
 	}
 	
 	else if (event == EVENT_LBUTTONUP) {
 		drawing = false;
+		
 		//imwrite("starry_night.jpg", mask);
 		pParent->Mouse=prep(mouse);
 		Rect org(Point(pParent->m_iHorzScrollBarPos / (pParent->m_dNewScale * 1280) * 6016, 

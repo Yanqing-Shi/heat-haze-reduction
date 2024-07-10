@@ -13,6 +13,7 @@ typedef struct MouseParams
 	int width;
 	int height;
 	Mat currentimg;
+	Point startloc, endloc;
 };
 
 class COpenCVWindowExt

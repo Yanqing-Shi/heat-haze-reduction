@@ -592,12 +592,16 @@ output Poly(vector<Point> pixels, size_t n,int width,int height) {
             resultx.at<uchar>(coefbetax[0] + x[i] * coefbetax[1] + pow(x[i], 2) * coefbetax[2], x[i]) = 255;
             sdx += pow(coefbetax[0] + x[i] * coefbetax[1] + pow(x[i], 2) * coefbetax[2]-y[i], 2);
             out.xout.push_back(int(x[i]));
+            //out.yout.push_back();
             j++;
+        }
+        else {
+            
         }
      
         //cout << x[i] << " ";
     }
-    cout <<"sdx="<< sdx << endl;
+    //cout <<"sdx="<< sdx << endl;
 
 
     PolyFit(y, x, n, k, fixedinter, fixedinterval, coefbetay, Weights, XTWXInv);

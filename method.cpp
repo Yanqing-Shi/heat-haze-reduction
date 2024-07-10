@@ -12,6 +12,7 @@ bool comparePoints(const Point& p1, const Point& p2) {
 Vec3b average(int x, int y, Mat img, int flag) {
 	Vec3b output;
 	if (flag == 1) {
+		//cout << x << " " << y << endl;
 		Vec3b valueLeft = img.at<Vec3b>(y, x - 2);
 		Vec3b valueMidLeft = img.at<Vec3b>(y, x - 1);
 		Vec3b valueCenter = img.at<Vec3b>(y, x);
@@ -155,6 +156,7 @@ MouseParams* prep(void* param) {
 	Mat mask = image->mask;
 	int height = image->height;
 	int width = image->width;
+	
 	Mat img_canny, greyMat;
 	cvtColor(img, greyMat, COLOR_BGR2GRAY);
 
@@ -182,7 +184,35 @@ MouseParams* prep(void* param) {
 
 	//cout << height << " " << width << endl;
 
-	vector<Point> whitePixels;
+	Mat colony=Mat::zeros(Size(width, height), CV_8UC1);
+	int dir[8][2] = { {0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1} };
+	int count[100] = { 0 };
+	int colonycount = 1;
+	for (int i = 0; i < height; ++i) {
+		
+		for (int j = 0; j < width; ++j) {
+			if (canny_result.at<uchar>(i,j) == 255) {
+				int flag = 0;
+				for (int k = 0; k < 8; k++) {
+					
+					if (colony.at<uchar>(i + dir[k][0], j + dir[k][1]) !=0) {
+						colony.at<uchar>(i, j) = colony.at<uchar>(i + dir[k][0], j + dir[k][1]);
+						flag = 1;
+						break;
+					}
+				}
+				if (flag == 1) continue;
+				else {
+					colony.at<uchar>(i, j) = colonycount; 
+					colonycount++;
+				}
+			}
+		}
+	}
+
+	
+	vector<Point> whitePixels; 
+
 	int length = 0;
 	// Traverse the image
 	Mat book;
@@ -192,7 +222,7 @@ MouseParams* prep(void* param) {
 
 		for (int j = 0; j < width; ++j) {
 			// Check if the pixel is white
-			if (row[j] == 255){
+			if (row[j] == 255) {
 
 				// Store the coordinates
 				length++;
@@ -207,6 +237,8 @@ MouseParams* prep(void* param) {
 		cout << elem << endl;
 	}*/
 	sort(whitePixels.begin(), whitePixels.end(), comparePoints);
+
+
 
 	//imshow("a", result_lap);
 	//if (xcoor.empty()) cout << "empty";
@@ -258,7 +290,7 @@ MouseParams* prep(void* param) {
 
 
 	if (output.ind == 1) {
-		
+
 	}
 
 	for (auto elem : xcor) {
@@ -271,11 +303,12 @@ MouseParams* prep(void* param) {
 			fx += int(pow(elem, i) * output.coef[i]);
 			fxp += (i + 1) * pow(elem, i) * output.coef[i + 1];
 		}
-		cout << elem << endl;
+		cout << "x=" << fx << endl;
+		
 		ycoor.push_back(fx);
 		//if (canny_result.at<uchar>(Point(elem, fx)) == result_canny.at<uchar>(Point(elem, fx))) continue;
 
-		//cout << fxp << endl;
+		cout <<"y=" << fxp << endl;
 		nor = -1 / fxp;
 
 		//double offset = fx - nor * elem;
@@ -285,10 +318,11 @@ MouseParams* prep(void* param) {
 	}
 	int order = 0;
 	for (auto elem : xcor) {
-		for (int i = -2; i <= 2; i++) {
+		for (int i = -1; i <= 1; i++) {
 			//cout << elem << " " << ycoor[order] << endl;
-			img.at<Vec3b>(ycoor[order], elem) = average(elem, ycoor[order] + i, img, 1);
+			img.at<Vec3b>(ycoor[order]+i, elem) = average(elem, ycoor[order] + i, img, 1);
 		}
+		cout << "yc=" << ycor[order] << endl;
 		order++;
 	}
 
@@ -296,6 +330,7 @@ MouseParams* prep(void* param) {
 
 	for (auto elem : xcor) {
 		img.at<Vec3b>(ycoor[order], elem) = average(elem, ycoor[order], img, 2);
+		order++;
 	}
 
 	imwrite("rrsult.jpg", img);
@@ -303,3 +338,5 @@ MouseParams* prep(void* param) {
 	image->currentimg = img;
 	return image;
 }
+
+

@@ -1,12 +1,12 @@
 ﻿  PolyFit.cpp
 C:\Users\todds\Desktop\haze\heat haze\heat haze\PolyFit.cpp(592,100): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
 C:\Users\todds\Desktop\haze\heat haze\heat haze\PolyFit.cpp(592,66): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
-C:\Users\todds\Desktop\haze\heat haze\heat haze\PolyFit.cpp(616,72): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
-C:\Users\todds\Desktop\haze\heat haze\heat haze\PolyFit.cpp(616,34): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
-C:\Users\todds\Desktop\haze\heat haze\heat haze\PolyFit.cpp(642,15): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\todds\Desktop\haze\heat haze\heat haze\PolyFit.cpp(619,72): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
+C:\Users\todds\Desktop\haze\heat haze\heat haze\PolyFit.cpp(619,34): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
+C:\Users\todds\Desktop\haze\heat haze\heat haze\PolyFit.cpp(644,15): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
   正在生成代码
-  2 of 431 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
+  4 of 431 functions ( 0.9%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    14 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   heat haze.vcxproj -> C:\Users\todds\Desktop\haze\heat haze\x64\Release\heat haze.exe
