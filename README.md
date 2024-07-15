@@ -4,7 +4,7 @@ Reduce the wave-like effect near edges in the image, mainly due to the distortio
 
 Run the project (I run it in Visual Studio). Use the mouse to do the following operations:
 
-Zoom in/out: scroll the mouse.
+Zoom in/out: scroll the mouse (do not scroll too fast. Seeing bugs when keep zooming out when reaching the limit)
 
 Move: right button down, then move the mouse.
 
