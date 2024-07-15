@@ -1,7 +1,13 @@
 Project in progress.
-Reduce the wave-like effect near edges in the image, mainly due to the distortion of light corssing through the air with vaarious temperature. Often happens in motorsport photography and plane spotting. 
-Run the project (I run it in Visual STudio). Use mouse to do following operations:
+
+Reduce the wave-like effect near edges in the image, mainly due to the distortion of light crossing through the air with various temperatures. It often happens in motorsport photography and plane spotting. 
+
+Run the project (I run it in Visual Studio). Use the mouse to do the following operations:
+
 Zoom in/out: scroll the mouse.
+
 Move: right button down, then move the mouse.
-Assign edge to be edited: Left button down, then move along the edge on the image.
+
+Assign edge to be edited: Left button down, then move along the edge of the image.
+
 Undo: mid button (wheel) down.
