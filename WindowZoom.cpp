@@ -21,7 +21,7 @@ void MouseCall (int event, int x, int y, int flag, void* param)
 		//cout << pParent->m_iScaleTimes << endl;
 		if (getMouseWheelDelta (flag) > 0 && pParent->m_iScaleTimes != pParent->m_iMaxScaleTimes)
 			pParent->m_iScaleTimes++;
-		else if (getMouseWheelDelta (flag) < 0 && pParent->m_iScaleTimes != pParent->m_iMinScaleTimes)
+		else if (getMouseWheelDelta (flag) < 0 && pParent->m_iScaleTimes > pParent->m_iMinScaleTimes)
 			pParent->m_iScaleTimes--;
 
 		if (pParent->m_iScaleTimes == 0)
@@ -49,12 +49,12 @@ void MouseCall (int event, int x, int y, int flag, void* param)
 
 		pParent->RefreshImage ();
 	}
-	else if (event == EVENT_RBUTTONDOWN)
+	else if (event == EVENT_RBUTTONDOWN && pParent->m_iScaleTimes!=0)
 	{
 		pParent->ptRButtonDown.x = x;
 		pParent->ptRButtonDown.y = y;
 	}
-	else if (flag == EVENT_FLAG_RBUTTON)
+	else if (flag == EVENT_FLAG_RBUTTON && pParent->m_iScaleTimes != 0)
 	{
 		int iRButtonOffsetX = x - pParent->ptRButtonDown.x;
 		int iRButtonOffsetY = y - pParent->ptRButtonDown.y;
@@ -77,15 +77,18 @@ void MouseCall (int event, int x, int y, int flag, void* param)
 		pParent->ptLButtonDown.y = y;
 		pParent->m_iHorzScrollBarPos_copy = pParent->m_iHorzScrollBarPos;
 		pParent->m_iVertScrollBarPos_copy = pParent->m_iVertScrollBarPos;
+		int xcurrent = x / (pParent->m_dNewScale * 1280) * 6016;
+		int ycurrent = y / (pParent->m_dNewScale * 854) * 4016;
 		if (flag == EVENT_FLAG_LBUTTON) {
 			//cout << x << " " << y << endl;
-			circle(mask, Point(x / (pParent->m_dNewScale * 1280) * 6016, y / (pParent->m_dNewScale * 854) * 4016),5, 255, FILLED);
-			if (x < mouse->startloc.x) mouse->startloc.x = x;
-			if (y < mouse->startloc.y) mouse->startloc.y = y;
-			if (x > mouse->endloc.x) mouse->endloc.x = x;
-			if (y > mouse->endloc.y) mouse->endloc.y = y;
+			
+			circle(mask, Point(xcurrent, ycurrent),4, 255, FILLED);
+			if (xcurrent < mouse->startloc.x) mouse->startloc.x = xcurrent;
+			if (ycurrent < mouse->startloc.y) mouse->startloc.y = ycurrent;
+			if (xcurrent > mouse->endloc.x) mouse->endloc.x = xcurrent;
+			if (ycurrent > mouse->endloc.y) mouse->endloc.y = ycurrent;
 		}
-
+		pParent->OverlapImage(xcurrent,ycurrent); 
 	}else if (event == EVENT_LBUTTONDOWN && drawing == false) {
 		drawing = true;
 		mouse->height = mouse->currentimg.rows;
@@ -93,8 +96,8 @@ void MouseCall (int event, int x, int y, int flag, void* param)
 		Mat mask = Mat::zeros(Size(mouse->width, mouse->height), CV_8UC1);
 		mouse->mask = mask; 
 
-		mouse->startloc = Point(x, y);
-		mouse->endloc = Point(x, y);
+		mouse->startloc = Point(x / (pParent->m_dNewScale * 1280) * 6016, y / (pParent->m_dNewScale * 854) * 4016);
+		mouse->endloc = Point(x / (pParent->m_dNewScale * 1280) * 6016, y / (pParent->m_dNewScale * 854) * 4016);
 		//cout << x << " " << y << endl;
 	}
 	
@@ -211,6 +214,16 @@ void COpenCVWindowExt::SetInitailScale (double dScale)
 	m_dNewScale = dScale;
 }
 
+void COpenCVWindowExt::OverlapImage(int x,int y) 
+{
+
+	Mat m (Mouse->height, Mouse->width, CV_8UC4, cv::Scalar(0, 0, 0, 0));
+	circle(m, Point(x, y), 4, cv::Scalar(255, 0, 0, 100), FILLED);
+	Mat overlapped;
+	bitwise_and(overlapped,Mouse->currentimg, m);
+	imshow(m_strWindowName, overlapped);
+}
+
 void COpenCVWindowExt::RefreshImage ()
 {
 	
@@ -236,12 +249,6 @@ void COpenCVWindowExt::RefreshImage ()
 
 	
 }
-
-//void COpenCVWindowExt::SetImage() {
-//	int iW = m_vecMatResize[0].cols, iH = m_vecMatResize[0].rows;//-1: for bar size
-//	Rect rectShow(Point(m_iHorzScrollBarPos, m_iVertScrollBarPos), Size(iW, iH));
-//	Mouse->currentimg.copyTo(m_vecMatResize[m_iScaleTimes](rectShow));
-//}
 
 
 

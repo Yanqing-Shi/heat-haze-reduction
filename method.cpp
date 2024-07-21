@@ -184,43 +184,41 @@ MouseParams* prep(void* param) {
 
 	//cout << height << " " << width << endl;
 
-	Mat colony=Mat::zeros(Size(width, height), CV_8UC1);
-	int dir[8][2] = { {0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1} };
-	int count[100] = { 0 };
-	int colonycount = 1;
-	for (int i = 0; i < height; ++i) {
-		
-		for (int j = 0; j < width; ++j) {
-			if (canny_result.at<uchar>(i,j) == 255) {
-				int flag = 0;
-				for (int k = 0; k < 8; k++) {
-					
-					if (colony.at<uchar>(i + dir[k][0], j + dir[k][1]) !=0) {
-						colony.at<uchar>(i, j) = colony.at<uchar>(i + dir[k][0], j + dir[k][1]);
-						flag = 1;
-						break;
-					}
-				}
-				if (flag == 1) continue;
-				else {
-					colony.at<uchar>(i, j) = colonycount; 
-					colonycount++;
-				}
-			}
+	Mat binary;
+	threshold(canny_result, binary, 127, 255, THRESH_BINARY);
+
+	// Find connected components
+	Mat labels, stats, centroids;
+	int num_labels = connectedComponentsWithStats(binary, labels, stats, centroids, 8, CV_32S);
+
+	// Find the largest connected component, ignoring the background (label 0)
+	int largest_component = 1;
+	int largest_area = 0;
+	for (int i = 1; i < num_labels; ++i) {
+		int area = stats.at<int>(i, CC_STAT_AREA);
+		if (area > largest_area) {
+			largest_area = area;
+			largest_component = i;
 		}
 	}
 
+	// Create a mask for the largest connected component
+	Mat canny_clean = Mat::zeros(binary.size(), CV_8U);
+	canny_clean.setTo(255, labels == largest_component);
 	
 	vector<Point> whitePixels; 
-
+	imwrite("aa.jpg", canny_clean);
 	int length = 0;
 	// Traverse the image
 	Mat book;
-	for (int i = 0; i < height; ++i) {
+
+	// Traverse the image
+	
+	for (int i = image->startloc.y - 5; i < image->endloc.y + 5; i++) {
 		// Get pointer to the i-th row
 		uchar* row = canny_result.ptr<uchar>(i);
 
-		for (int j = 0; j < width; ++j) {
+		for (int j = image->startloc.x - 5; j < image->endloc.x + 5; j++) {
 			// Check if the pixel is white
 			if (row[j] == 255) {
 
@@ -231,11 +229,8 @@ MouseParams* prep(void* param) {
 			}
 		}
 	}
+	
 
-	//cout << endl;
-	/*for (auto elem : whitePixels) {
-		cout << elem << endl;
-	}*/
 	sort(whitePixels.begin(), whitePixels.end(), comparePoints);
 
 
@@ -246,6 +241,26 @@ MouseParams* prep(void* param) {
 
 
 	int l = 1;
+	
+
+	output output = Poly(whitePixels, length, width, height);
+
+
+
+	Mat result_canny, result_lap;
+	vector<int> xcor = output.xout;
+	vector<int> ycor = output.yout;
+	result_canny = output.result;
+	imwrite("poly_result.jpg", result_canny);
+	bitwise_or(canny_result, result_canny, result_lap);
+
+
+	
+	if (output.ind == 1) {
+		transpose(img, img);
+	}
+	//imwrite("bb.jpg",r);
+
 	for (int i = 1; i < length - 1; i++) {
 		int x = whitePixels[i].x;
 
@@ -256,7 +271,7 @@ MouseParams* prep(void* param) {
 		}
 		else if (l > 2) {
 			//cout << l << endl;
-			for (int j = -2; j <= 0; j++) {
+			for (int j = -2; j <= 2; j++) {
 				for (int k = l - 2; k >= 1; k--) {
 					Vec3b valueLeft = img.at<Vec3b>(y + j, x - k - 1);
 					Vec3b valueCenter = img.at<Vec3b>(y + j, x - k);
@@ -275,62 +290,48 @@ MouseParams* prep(void* param) {
 		}
 	}
 
-	output output = Poly(whitePixels, length, width, height);
 
 
 
-	Mat result_canny, result_lap;
-	vector<int> xcor = output.xout;
-	vector<int> ycor = output.yout;
-	result_canny = output.result;
-	imwrite("poly_result.jpg", result_canny);
-	bitwise_or(canny_result, result_canny, result_lap);
-
-	vector<int> ycoor;
-
-
-	if (output.ind == 1) {
-
-	}
-
+	int a = 0;
 	for (auto elem : xcor) {
 		//cout << elem << endl;
-		double fx = 0;
 		double fxp = 0;
 		double nor;
 		for (int i = 0; i <= output.ord; i++) {
 
-			fx += int(pow(elem, i) * output.coef[i]);
 			fxp += (i + 1) * pow(elem, i) * output.coef[i + 1];
 		}
-		cout << "x=" << fx << endl;
+		//cout << "x=" << fx << endl;
 		
-		ycoor.push_back(fx);
+		
 		//if (canny_result.at<uchar>(Point(elem, fx)) == result_canny.at<uchar>(Point(elem, fx))) continue;
 
-		cout <<"y=" << fxp << endl;
+		//cout <<"y=" << fxp << endl;
 		nor = -1 / fxp;
 
 		//double offset = fx - nor * elem;
 
-		img = manipulation(nor, img, canny_result, result_canny, elem, fx);
-
+		img = manipulation(nor, img, canny_result, result_canny, elem, ycor[a]);
+		a++;
 	}
 	int order = 0;
 	for (auto elem : xcor) {
 		for (int i = -1; i <= 1; i++) {
 			//cout << elem << " " << ycoor[order] << endl;
-			img.at<Vec3b>(ycoor[order]+i, elem) = average(elem, ycoor[order] + i, img, 1);
+			img.at<Vec3b>(ycor[order]+i, elem) = average(elem, ycor[order] + i, img, 1);
 		}
-		cout << "yc=" << ycor[order] << endl;
 		order++;
 	}
 
 	order = 0;
 
 	for (auto elem : xcor) {
-		img.at<Vec3b>(ycoor[order], elem) = average(elem, ycoor[order], img, 2);
+		img.at<Vec3b>(ycor[order], elem) = average(elem, ycor[order], img, 2);
 		order++;
+	}
+	if (output.ind == 1) {
+		transpose(img, img);
 	}
 
 	imwrite("rrsult.jpg", img);
@@ -338,5 +339,3 @@ MouseParams* prep(void* param) {
 	image->currentimg = img;
 	return image;
 }
-
-

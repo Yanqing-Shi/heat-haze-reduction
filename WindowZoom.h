@@ -28,7 +28,7 @@ public:
 	MouseParams* Mouse;
 
 	void RefreshImage ();
-	void SetImage();
+	void OverlapImage(int x,int y);
 	Mat m_matSrc;
 
 	vector<Mat> m_vecMatResize;

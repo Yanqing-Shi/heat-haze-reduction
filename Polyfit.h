@@ -6,12 +6,13 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
 #include<opencv2/imgproc/imgproc.hpp>
+using namespace std;
 struct output {
 	cv::Mat result;
 	int ord;
 	double coef[5] = { 0 };
-	std::vector<int> xout;
-	std::vector<int> yout;
+	vector<int> xout;
+	vector<int> yout;
 	int ind;
 };
 
