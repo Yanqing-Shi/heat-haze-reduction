@@ -77,18 +77,19 @@ void MouseCall (int event, int x, int y, int flag, void* param)
 		pParent->ptLButtonDown.y = y;
 		pParent->m_iHorzScrollBarPos_copy = pParent->m_iHorzScrollBarPos;
 		pParent->m_iVertScrollBarPos_copy = pParent->m_iVertScrollBarPos;
-		int xcurrent = x / (pParent->m_dNewScale * 1280) * 6016;
-		int ycurrent = y / (pParent->m_dNewScale * 854) * 4016;
+		
 		if (flag == EVENT_FLAG_LBUTTON) {
 			//cout << x << " " << y << endl;
-			
+			int xcurrent = x / (pParent->m_dNewScale * 1280) * 6016;
+			int ycurrent = y / (pParent->m_dNewScale * 854) * 4016;
 			circle(mask, Point(xcurrent, ycurrent),4, 255, FILLED);
 			if (xcurrent < mouse->startloc.x) mouse->startloc.x = xcurrent;
 			if (ycurrent < mouse->startloc.y) mouse->startloc.y = ycurrent;
 			if (xcurrent > mouse->endloc.x) mouse->endloc.x = xcurrent;
 			if (ycurrent > mouse->endloc.y) mouse->endloc.y = ycurrent;
+			
 		}
-		pParent->OverlapImage(xcurrent,ycurrent); 
+		pParent->OverlapImage(x, y);
 	}else if (event == EVENT_LBUTTONDOWN && drawing == false) {
 		drawing = true;
 		mouse->height = mouse->currentimg.rows;
@@ -217,10 +218,15 @@ void COpenCVWindowExt::SetInitailScale (double dScale)
 void COpenCVWindowExt::OverlapImage(int x,int y) 
 {
 
-	Mat m (Mouse->height, Mouse->width, CV_8UC4, cv::Scalar(0, 0, 0, 0));
-	circle(m, Point(x, y), 4, cv::Scalar(255, 0, 0, 100), FILLED);
+	Mat m (Mouse->height, Mouse->width, CV_8UC4, Scalar(0, 0, 0, 100));
+	cout<<Mouse->height << " " << Mouse->width << endl;
+	circle(m, Point(x, y), 4, Scalar(255, 255, 255, 100), -1);
 	Mat overlapped;
-	bitwise_and(overlapped,Mouse->currentimg, m);
+	Mat mat;
+	int iW = m_vecMatResize[0].cols, iH = m_vecMatResize[0].rows;//-1: for bar size
+	Rect rectShow(Point(m_iHorzScrollBarPos, m_iVertScrollBarPos), Size(iW, iH));
+	cvtColor(m_vecMatResize[m_iScaleTimes](rectShow), mat, COLOR_BGR2BGRA);
+	overlapped=mat+m;
 	imshow(m_strWindowName, overlapped);
 }
 
