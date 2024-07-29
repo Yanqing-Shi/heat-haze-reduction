@@ -100,6 +100,7 @@ void MouseCall (int event, int x, int y, int flag, void* param)
 		mouse->startloc = Point(x / (pParent->m_dNewScale * 1280) * 6016, y / (pParent->m_dNewScale * 854) * 4016);
 		mouse->endloc = Point(x / (pParent->m_dNewScale * 1280) * 6016, y / (pParent->m_dNewScale * 854) * 4016);
 		//cout << x << " " << y << endl;
+		mask.release();
 	}
 	
 	else if (event == EVENT_LBUTTONUP) {
@@ -219,7 +220,7 @@ void COpenCVWindowExt::OverlapImage(int x,int y)
 {
 
 	Mat m (Mouse->height, Mouse->width, CV_8UC4, Scalar(0, 0, 0, 100));
-	cout<<Mouse->height << " " << Mouse->width << endl;
+	
 	circle(m, Point(x, y), 4, Scalar(255, 255, 255, 100), -1);
 	Mat overlapped;
 	Mat mat;
@@ -228,6 +229,9 @@ void COpenCVWindowExt::OverlapImage(int x,int y)
 	cvtColor(m_vecMatResize[m_iScaleTimes](rectShow), mat, COLOR_BGR2BGRA);
 	overlapped=mat+m;
 	imshow(m_strWindowName, overlapped);
+	mat.release();
+	m.release();
+	overlapped.release();
 }
 
 void COpenCVWindowExt::RefreshImage ()

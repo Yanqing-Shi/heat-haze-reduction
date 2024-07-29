@@ -337,5 +337,20 @@ MouseParams* prep(void* param) {
 	imwrite("rrsult.jpg", img);
 	cout << "success" << endl;
 	image->currentimg = img;
+
+	grad.release();
+	grad_x.release();
+	grad_y.release();
+	abs_grad_x.release();
+	abs_grad_y.release();
+	img.release();
+	canny_clean.release();
+	canny_result.release();
+	result_canny.release(); 
+	result_lap.release();
+	binary.release();
+	labels.release();
+	stats.release();
+	centroids.release();
 	return image;
 }
