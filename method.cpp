@@ -182,7 +182,6 @@ MouseParams* prep(void* param) {
 	imwrite("canny_result.jpg", canny_result);
 	imwrite("mask.jpg", mask);
 
-	//cout << height << " " << width << endl;
 
 	Mat binary;
 	threshold(canny_result, binary, 127, 255, THRESH_BINARY);
@@ -191,7 +190,6 @@ MouseParams* prep(void* param) {
 	Mat labels, stats, centroids;
 	int num_labels = connectedComponentsWithStats(binary, labels, stats, centroids, 8, CV_32S);
 
-	// Find the largest connected component, ignoring the background (label 0)
 	int largest_component = 1;
 	int largest_area = 0;
 	for (int i = 1; i < num_labels; ++i) {
@@ -212,7 +210,6 @@ MouseParams* prep(void* param) {
 	// Traverse the image
 	Mat book;
 
-	// Traverse the image
 	
 	for (int i = image->startloc.y - 5; i < image->endloc.y + 5; i++) {
 		// Get pointer to the i-th row
@@ -235,9 +232,6 @@ MouseParams* prep(void* param) {
 
 
 
-	//imshow("a", result_lap);
-	//if (xcoor.empty()) cout << "empty";
-	//cout<<xcoor.size();
 
 
 	int l = 1;
@@ -259,8 +253,7 @@ MouseParams* prep(void* param) {
 	if (output.ind == 1) {
 		transpose(img, img);
 	}
-	//imwrite("bb.jpg",r);
-
+	
 	for (int i = 1; i < length - 1; i++) {
 		int x = whitePixels[i].x;
 
