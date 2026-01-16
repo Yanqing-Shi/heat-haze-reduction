@@ -13,3 +13,6 @@ Move: right button down, then move the mouse.
 Assign edge to be edited: Left button down, then move along the edge of the image.
 
 Undo: mid button (wheel) down.
+
+![currentimg](https://github.com/user-attachments/assets/015cfbd0-00d5-4ff2-b48f-e691c330dce3)
+![rrsult](https://github.com/user-attachments/assets/b116dbe1-14a9-4cb0-8bd6-5eb28b89b848)
