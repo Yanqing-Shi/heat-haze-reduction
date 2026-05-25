@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Heat Haze",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}\\x64\\Debug\\Heat Haze.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}\\Heat Haze",
+      "environment": [
+        {
+          "name": "PATH",
+          "value": "C:\\Program Files\\opencv\\build\\x64\\vc16\\bin;${env:PATH}"
+        }
+      ],
+      "console": "integratedTerminal",
+      "preLaunchTask": "Build Debug x64"
+    }
+  ]
+}

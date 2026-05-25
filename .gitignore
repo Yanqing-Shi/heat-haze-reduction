@@ -1,0 +1,24 @@
+.vs/
+x64/
+Debug/
+Release/
+
+*.user
+*.obj
+*.pdb
+*.idb
+*.iobj
+*.ipdb
+*.tlog
+*.log
+*.exe
+*.recipe
+
+Heat Haze/currentimg.jpg
+Heat Haze/canny.jpg
+Heat Haze/canny_result.jpg
+Heat Haze/mask.jpg
+Heat Haze/aa.jpg
+Heat Haze/poly_result.jpg
+Heat Haze/rrsult.jpg
+Heat Haze/result.jpg
