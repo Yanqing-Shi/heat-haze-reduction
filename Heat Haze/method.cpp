@@ -180,6 +180,7 @@ Mat manipulation(double slope, Mat img, Mat canny, Mat post_canny, int x, int fx
 
 MouseParams* prep(void* param) {
 	MouseParams* image = reinterpret_cast<MouseParams*>(param);
+	image->changed = false;
 
 	Mat img = image->currentimg;
 	SaveDebugImage("currentimg.jpg", img);
@@ -378,6 +379,7 @@ MouseParams* prep(void* param) {
 	imwrite("result.jpg", img);
 	cout << "success" << endl;
 	image->currentimg = img;
+	image->changed = true;
 
 	grad.release();
 	grad_x.release();

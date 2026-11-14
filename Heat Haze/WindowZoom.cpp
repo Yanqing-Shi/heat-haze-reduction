@@ -10,6 +10,7 @@ bool drawing = false;
 namespace {
 constexpr int kMaxViewWidth = 1280;
 constexpr int kMaxViewHeight = 854;
+constexpr size_t kMaxUndoSteps = 10;
 
 int ClampInt(int value, int minValue, int maxValue)
 {
@@ -19,7 +20,7 @@ int ClampInt(int value, int minValue, int maxValue)
 
 
 
-void MouseCall (int event, int x, int y, int flag, void* param)
+static void HandleMouse (int event, int x, int y, int flag, void* param)
 {
 	COpenCVWindowExt* pParent= (COpenCVWindowExt*)(param);
 	MouseParams* mouse = pParent->Mouse;
@@ -90,7 +91,7 @@ void MouseCall (int event, int x, int y, int flag, void* param)
 		pParent->m_iHorzScrollBarPos_copy = pParent->m_iHorzScrollBarPos;
 		pParent->m_iVertScrollBarPos_copy = pParent->m_iVertScrollBarPos;
 		
-		if (flag == EVENT_FLAG_LBUTTON) {
+		if (flag == EVENT_FLAG_LBUTTON && drawing && !mask.empty()) {
 			Point imagePoint = pParent->WindowToImagePoint(x, y);
 			circle(mask, imagePoint,4, 255, FILLED);
 			if (imagePoint.x < mouse->startloc.x) mouse->startloc.x = imagePoint.x;
@@ -100,7 +101,6 @@ void MouseCall (int event, int x, int y, int flag, void* param)
 			if (imagePoint.y > mouse->endloc.y) mouse->endloc.y = imagePoint.y;
 			
 		}
-		//pParent->OverlapImage(x, y);
 	}else if (event == EVENT_LBUTTONDOWN && drawing == false) {
 		drawing = true;
 		mouse->height = mouse->currentimg.rows;
@@ -116,26 +116,30 @@ void MouseCall (int event, int x, int y, int flag, void* param)
 	}
 	
 	else if (event == EVENT_LBUTTONUP) {
+		const bool wasDrawing = drawing;
 		drawing = false;
-		
-		
+
+		// A release without a press in this window (or the second release of a
+		// double-click) has no fresh mask to process.
+		if (!wasDrawing || mouse->mask.empty())
+			return;
+
 		pParent->Mouse=prep(mouse);
-		pParent->m_matSrc = pParent->Mouse->currentimg.clone();
+		if (!pParent->Mouse->changed)
+			return;
 
-		pParent->history.push(pParent->m_matSrc.clone());
-		
+		pParent->m_matSrc = pParent->Mouse->currentimg;
+
+		pParent->history.push_back(pParent->m_matSrc.clone());
+		if (pParent->history.size() > kMaxUndoSteps + 1)
+			pParent->history.pop_front();           // Drop the oldest state
+
 		pParent->RefreshImage();
-
-	
-		/*for (auto elem : points) {
-			cout << elem << endl;
-		}*/
-		//cout <<endl << points.back() << endl;
 	}
 	else if (event == EVENT_MBUTTONDOWN) {
 		if (pParent->history.size() > 1) {
-			pParent->history.pop();                  // Remove the current state
-			pParent->m_matSrc = pParent->history.top().clone();  // Revert to previous state
+			pParent->history.pop_back();             // Remove the current state
+			pParent->m_matSrc = pParent->history.back().clone();  // Revert to previous state
 			pParent->RefreshImage();
 
 		}
@@ -145,6 +149,31 @@ void MouseCall (int event, int x, int y, int flag, void* param)
 		}
 	}
 }
+// OpenCV calls this from its window message loop, where an escaping exception
+// would terminate the program, so every failure is caught and reported here.
+void MouseCall (int event, int x, int y, int flag, void* param)
+{
+	try {
+		HandleMouse(event, x, y, flag, param);
+	}
+	catch (const std::exception& e) {
+		cerr << "Operation failed: " << e.what() << endl;
+		drawing = false;
+
+		// prep() edits the image in place, so go back to the last complete state.
+		COpenCVWindowExt* pParent = (COpenCVWindowExt*)(param);
+		try {
+			if (!pParent->history.empty()) {
+				pParent->m_matSrc = pParent->history.back().clone();
+				pParent->RefreshImage();
+			}
+		}
+		catch (const std::exception& e2) {
+			cerr << "Could not restore the image: " << e2.what() << endl;
+		}
+	}
+}
+
 COpenCVWindowExt::COpenCVWindowExt (String strWindowName, int iFlag)
 {
 	namedWindow (strWindowName, iFlag);
@@ -160,7 +189,6 @@ COpenCVWindowExt::COpenCVWindowExt (String strWindowName, int iFlag)
 	m_iScaleTimes = 0;
 	m_iMaxScaleTimes = 12;
 	m_iMinScaleTimes = 0;
-	m_vecMatResize.resize (m_iMaxScaleTimes + 1);
 	m_dCompensationX = 0;
 	m_dCompensationY = 0;
 	m_dInitialScale = 2;
@@ -194,7 +222,8 @@ bool COpenCVWindowExt::ImRead (String strFileName)
 	m_matSrc = imread (strFileName);
 	if (m_matSrc.empty ())
 		return false;
-	history.push(m_matSrc.clone());
+	history.clear();
+	history.push_back(m_matSrc.clone());
 
 	m_iOrgW = m_matSrc.cols;
 	m_iOrgH = m_matSrc.rows;
@@ -203,19 +232,16 @@ bool COpenCVWindowExt::ImRead (String strFileName)
 	m_viewSize = Size(max(1, static_cast<int>(round(m_iOrgW * fitScale))),
 		max(1, static_cast<int>(round(m_iOrgH * fitScale))));
 	//cout << m_matSrc.cols * m_dInitialScale << " " << m_matSrc.rows * m_dInitialScale << endl;
-	resize (m_matSrc, m_vecMatResize[0], m_viewSize);
-	//imwrite("aa.jpg", img_canny);
-	if (!m_vecMatResize[0].empty()) {
-		imshow(m_strWindowName, m_vecMatResize[0]);
-		Mouse->img = m_vecMatResize[0];
-		Mouse->width = m_vecMatResize[0].cols; //1280
-		Mouse->height = m_vecMatResize[0].rows; //854
-		//cout << m_vecMatResize[0].cols << " " << m_vecMatResize[0].rows;
+	resize (m_matSrc, m_matView, m_viewSize);
+	if (!m_matView.empty()) {
+		imshow(m_strWindowName, m_matView);
+		Mouse->img = m_matView;
+		Mouse->width = m_matView.cols; //1280
+		Mouse->height = m_matView.rows; //854
 		Mouse->currentimg = m_matSrc;
 	}
-		
 
-	return !m_vecMatResize[0].empty ();
+	return !m_matView.empty ();
 }
 
 void COpenCVWindowExt::SetInitailScale (double dScale)
@@ -227,45 +253,31 @@ void COpenCVWindowExt::SetInitailScale (double dScale)
 	m_dNewScale = dScale;
 }
 
-void COpenCVWindowExt::OverlapImage(int x,int y) 
-{
-
-	Mat m (Mouse->height, Mouse->width, CV_8UC4, Scalar(0, 0, 0, 100));
-	
-	//circle(m, Point(x, y), 4, Scalar(255, 255, 255, 100), -1);
-	Mat overlapped;
-	Mat mat;
-	int iW = m_vecMatResize[0].cols, iH = m_vecMatResize[0].rows;
-	Rect rectShow(Point(m_iHorzScrollBarPos, m_iVertScrollBarPos), Size(iW, iH));
-	cvtColor(m_vecMatResize[m_iScaleTimes](rectShow), mat, COLOR_BGR2BGRA);
-	overlapped=mat+m;
-	imshow(m_strWindowName, overlapped);
-	mat.release();
-	m.release();
-	overlapped.release();
-}
-
 void COpenCVWindowExt::RefreshImage ()
 {
-	
 	if (m_matSrc.empty ())
 		return;
-	
-	Size size (int (m_dNewScale * m_viewSize.width), int (m_dNewScale * m_viewSize.height));
-		//cout << m_dNewScale << endl;
-		//cout << int(m_dNewScale * m_matSrc.cols) << " " << int(m_dNewScale * m_matSrc.rows) << endl;
-	resize (m_matSrc, m_vecMatResize[m_iScaleTimes], size);
-		//imshow(m_strWindowName, m_vecMatResize[m_iScaleTimes]);
-	
-	
-	int iW = m_viewSize.width, iH = m_viewSize.height;
 
-	Rect rectShow (Point (m_iHorzScrollBarPos, m_iVertScrollBarPos), Size (iW, iH));
-	//cout << rectShow.tl() << " " << rectShow.br();
-	imshow (m_strWindowName, m_vecMatResize[m_iScaleTimes] (rectShow));
-	Mouse->currentimg = m_matSrc;//m_vecMatResize[m_iScaleTimes](rectShow);
-	
+	// Render only the visible part of the source, never the whole zoomed image.
+	// The margin keeps the interpolation neighbours inside the cropped region.
+	Rect rectSrc = CurrentSourceRect();
+	if (rectSrc.area() <= 0)
+		return;
+	rectSrc = Rect(rectSrc.x - 2, rectSrc.y - 2, rectSrc.width + 4, rectSrc.height + 4)
+		& Rect(0, 0, m_matSrc.cols, m_matSrc.rows);
 
+	// View pixel (x, y) shows the source point below; this is the same mapping
+	// WindowToImagePoint() uses, so the brush stays aligned with the display.
+	const double dStepX = m_iOrgW / max(1.0, m_dNewScale * m_viewSize.width);
+	const double dStepY = m_iOrgH / max(1.0, m_dNewScale * m_viewSize.height);
+	const Matx23d viewToSrc(
+		dStepX, 0, dStepX * (m_iHorzScrollBarPos + 0.5) - 0.5 - rectSrc.x,
+		0, dStepY, dStepY * (m_iVertScrollBarPos + 0.5) - 0.5 - rectSrc.y);
+
+	warpAffine (m_matSrc (rectSrc), m_matView, viewToSrc, m_viewSize,
+		INTER_LINEAR | WARP_INVERSE_MAP, BORDER_REPLICATE);
+	imshow (m_strWindowName, m_matView);
+	Mouse->currentimg = m_matSrc;
 }
 
 Point COpenCVWindowExt::WindowToImagePoint(int x, int y) const

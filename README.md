@@ -53,7 +53,7 @@ The VS Code tasks still call Visual Studio's MSBuild, so Visual Studio C++ tools
 - Left-drag: mark the heat-haze or distorted edge region.
 - Mouse wheel: zoom.
 - Right-drag: pan after zooming.
-- Middle-click: undo the previous edit.
+- Middle-click: undo the previous edit (the last 10 edits are kept).
 
 The processed image is written to `result.jpg`.
 

@@ -34,7 +34,7 @@
 #include <math.h>
 #include <cmath>
 #include <iomanip>
-#include<opencv2\opencv.hpp>
+#include <opencv2/opencv.hpp>
 #include"Polyfit.h"
 
 using namespace std;
@@ -505,142 +505,117 @@ void DisplayPolynomial(const size_t k) {
 
 
 
+namespace {
+
+// Least-squares fit of v = c0 + c1*u + c2*u^2 over the first n points, where
+// u is x and v is y when xIndependent is true, and the other way round otherwise.
+// The design matrix is n x 3, so memory grows linearly with n.
+bool FitQuadratic(const vector<Point>& pts, const size_t n, const bool xIndependent, double coef[3]) {
+
+    const int rows = static_cast<int>(n);
+    Mat A(rows, 3, CV_64F);
+    Mat b(rows, 1, CV_64F);
+
+    for (int i = 0; i < rows; i++) {
+        const double u = xIndependent ? pts[i].x : pts[i].y;
+        const double v = xIndependent ? pts[i].y : pts[i].x;
+        double* row = A.ptr<double>(i);
+        row[0] = 1.;
+        row[1] = u;
+        row[2] = u * u;
+        b.at<double>(i) = v;
+    }
+
+    // SVD returns a pseudo-solution even when the points are degenerate
+    Mat sol;
+    solve(A, b, sol, DECOMP_SVD);
+    if (sol.rows != 3 || sol.cols != 1) return false;
+
+    for (int j = 0; j < 3; j++) {
+        coef[j] = sol.at<double>(j);
+    }
+
+    return isfinite(coef[0]) && isfinite(coef[1]) && isfinite(coef[2]);
+
+}
+
+}
+
+
 // The main program
 // **************************************************************
 output Poly(vector<Point> pixels, size_t n, int width, int height) {
 
     output out;
-    if (pixels.empty() || n == 0) {
+    const size_t k = 2;                              // Polynomial order
+
+    n = min(n, pixels.size());
+    if (n < k + 1) {                                 // Not enough points for the fit
         out.result = Mat::zeros(Size(width, height), CV_8UC1);
-        out.ord = 2;
+        out.ord = static_cast<int>(k);
         out.ind = 0;
         return out;
     }
 
-    vector<unsigned char> book(max(width, 1), 0);
-    // Input values
-    // **************************************************************
-    size_t k = 2;
-    // Polynomial order
-    bool fixedinter = false;                         // Fixed the intercept (coefficient A0)
-    int wtype = 0;                                   // Weight: 0 = none (default), 1 = sigma, 2 = 1/sigma^2
-    double fixedinterval = 0.;                       // The fixed intercept value (if applicable)
-    double alphaval = 0.05;                          // Critical apha value
+    double coefbetax[3] = { 0 };                     // Coefficients of y = f(x)
+    double coefbetay[3] = { 0 };                     // Coefficients of x = f(y)
 
-    double* x = new double[n];
-    double* y = new double[n];
-    double* erry = new double[n];
-
-    for (int i = 0; i < n; i++) {
-        x[i] = pixels[i].x;
-        y[i] = pixels[i].y;
-        erry[i] = 0;
-    }
-
-
-    //    double x[] = { 490, 758, 305, 915, 746, 677, 812, 256, 973, 860,
-    //448, 745, 42, 810, 71, 107, 665, 729, 721, 508,
-    //106, 287, 966, 588, 756, 359, 752, 63, 994, 740,
-    //967, 693, 999, 10, 67, 538, 911, 196, 533, 120,
-    //23, 132, 327, 202, 395, 541, 972, 267, 699, 872,
-    //686, 496, 943, 941, 88, 15, 412, 780, 249, 313,
-    //460, 864, 133, 657, 609, 454, 726, 258, 2, 456,
-    //241, 649, 350, 785, 906, 951, 337, 504, 790, 268,
-    //360, 279, 789, 832, 205, 52, 597, 180, 168, 130,
-    //489, 673, 859, 883, 86, 363, 406, 617, 271, 757 };
-    //    double y[] = { 535, 339, 488, 226, 330, 979, 943, 506, 314, 681,
-    //457, 284, 921, 332, 961, 865, 414, 28, 433, 784,
-    //869, 115, 166, 274, 972, 860, 34, 447, 174, 246,
-    //904, 65, 856, 76, 703, 803, 376, 601, 187, 232,
-    //814, 409, 37, 177, 513, 286, 516, 966, 462, 491,
-    //655, 411, 336, 500, 486, 621, 293, 568, 859, 123,
-    //877, 745, 882, 439, 474, 193, 620, 397, 850, 393,
-    //929, 361, 483, 637, 392, 191, 82, 317, 273, 518,
-    //755, 477, 261, 740, 648, 693, 536, 626, 47, 576,
-    //327, 509, 606, 750, 776, 870, 58, 741, 25, 145 };
-    //    double erry[100] = {0};       // Data points (err on y) (if applicable)
-
-        // Definition of other variables
-        // **************************************************************
-
-    double* coefbetax = new double[k + 1];                            // Coefficients of the polynomial
-    double* coefbetay = new double[k + 1];
-    double* serbeta = new double[k + 1];                             // Standard error on coefficients
-    double tstudentval = 0.;                         // Student t value
-    double SE = 0.;                                  // Standard error
-
-    double** XTWXInv;                                // Matrix XTWX Inverse [k+1,k+1]
-    double** Weights;                                // Matrix Weights [n,n]
-
-
-    // Initialize values
-    // **************************************************************
-
-    XTWXInv = Make2DArray(k + 1, k + 1);
-    Weights = Make2DArray(n, n);
     DisplayPolynomial(k);
-    // Build the weight matrix
-    // **************************************************************
-    CalculateWeights(erry, Weights, n, wtype);
 
     vector<int>x_xout, x_yout, y_xout, y_yout;
 
-    // Calculate the coefficients of the fit
+    // Fit y = f(x) and draw it, one point per image column
     // **************************************************************
-    PolyFit(x, y, n, k, fixedinter, fixedinterval, coefbetax, Weights, XTWXInv);
-    //DisplayCoefs(k, nstar, tstudentval, coefbeta, serbeta);
-    int j = 0;
-    double sdx = 0;
+    vector<unsigned char> book(max(width, 1), 0);
     Mat resultx = Mat::zeros(Size(width, height), CV_8UC1);
-    for (int i = 0; i < n; i++) {
+    double sdx = 0;
 
-        const int xi = static_cast<int>(x[i]);
-        if (xi >= 0 && xi < width && book[xi] == 0) {
-            //cout << x[i] << endl;
-            book[xi] = 1;
-            const int yi = static_cast<int>(coefbetax[0] + x[i] * coefbetax[1] + pow(x[i], 2) * coefbetax[2]);
-            if (yi >= 0 && yi < height) {
-                resultx.at<uchar>(yi, xi) = 255;
-                sdx += pow(yi - y[i], 2);
-                x_xout.push_back(xi);
-                x_yout.push_back(yi);
+    if (FitQuadratic(pixels, n, true, coefbetax)) {
+        for (size_t i = 0; i < n; i++) {
+
+            const double x = pixels[i].x;
+            const double y = pixels[i].y;
+            const int xi = pixels[i].x;
+            if (xi >= 0 && xi < width && book[xi] == 0) {
+                book[xi] = 1;
+                // Range-check as double first: converting NaN or a huge value to int is undefined
+                const double fy = coefbetax[0] + x * coefbetax[1] + pow(x, 2) * coefbetax[2];
+                if (fy > -1. && fy < height) {
+                    const int yi = static_cast<int>(fy);
+                    resultx.at<uchar>(yi, xi) = 255;
+                    sdx += pow(yi - y, 2);
+                    x_xout.push_back(xi);
+                    x_yout.push_back(yi);
+                }
             }
-            //out.yout.push_back();
-            j++;
         }
-        else {
-
-        }
-
-        //cout << x[i] << " ";
     }
-    cout <<"sdx="<< sdx << endl;
+    cout << "sdx=" << sdx << endl;
 
-
-    PolyFit(y, x, n, k, fixedinter, fixedinterval, coefbetay, Weights, XTWXInv);
-
-
+    // Fit x = f(y) and draw it, one point per image row
+    // **************************************************************
     vector<unsigned char> book2(max(height, 1), 0);
-
     Mat resulty = Mat::zeros(Size(width, height), CV_8UC1);
     double sdy = 0;
-    for (int i = 0; i < n; i++) {
 
-        const int yi = static_cast<int>(y[i]);
-        if (yi >= 0 && yi < height && book2[yi] == 0) {
-            //cout << x[i] << endl;
-            book2[yi] = 1;
-            const int xi = static_cast<int>(coefbetay[0] + y[i] * coefbetay[1] + pow(y[i], 2) * coefbetay[2]);
-            if (xi >= 0 && xi < width) {
-                resulty.at<uchar>(yi, xi) = 255;
-                sdy += pow(xi - x[i], 2);
-                y_xout.push_back(yi);
-                y_yout.push_back(xi);
+    if (FitQuadratic(pixels, n, false, coefbetay)) {
+        for (size_t i = 0; i < n; i++) {
+
+            const double x = pixels[i].x;
+            const double y = pixels[i].y;
+            const int yi = pixels[i].y;
+            if (yi >= 0 && yi < height && book2[yi] == 0) {
+                book2[yi] = 1;
+                const double fx = coefbetay[0] + y * coefbetay[1] + pow(y, 2) * coefbetay[2];
+                if (fx > -1. && fx < width) {
+                    const int xi = static_cast<int>(fx);
+                    resulty.at<uchar>(yi, xi) = 255;
+                    sdy += pow(xi - x, 2);
+                    y_xout.push_back(yi);
+                    y_yout.push_back(xi);
+                }
             }
-            j++;
         }
-
-
     }
     cout << "sdy=" << sdy << endl;
 
@@ -664,14 +639,6 @@ output Poly(vector<Point> pixels, size_t n, int width, int height) {
     }
 
     out.ord = static_cast<int>(k);
-
-
-    delete[]coefbetax;
-    coefbetax = NULL;
-    delete[]coefbetay;
-    coefbetay = NULL;
-    delete[]serbeta;
-    serbeta = NULL;
 
     return out;
 }

@@ -1,6 +1,6 @@
 #include <opencv2/opencv.hpp>
 #include<iostream>
-#include<stack>
+#include<deque>
 using namespace std;
 using namespace cv;
 #pragma once
@@ -14,6 +14,7 @@ struct MouseParams
 	int height = 0;
 	Mat currentimg;
 	Point startloc, endloc;
+	bool changed = false;
 };
 
 class COpenCVWindowExt
@@ -22,18 +23,17 @@ class COpenCVWindowExt
 public:
 	COpenCVWindowExt (String strWindowName, int iFlag = 1);
 	~COpenCVWindowExt ();
-	stack<Mat> history;
+	deque<Mat> history;
 	bool ImRead (String strFileName);
 	void SetInitailScale (double dScale);
 	MouseParams* Mouse;
 
 	void RefreshImage ();
-	void OverlapImage(int x,int y);
 	Point WindowToImagePoint(int x, int y) const;
 	Rect CurrentSourceRect() const;
 	Mat m_matSrc;
 
-	vector<Mat> m_vecMatResize;
+	Mat m_matView;
 	String m_strWindowName;
 	Size m_viewSize;
 
